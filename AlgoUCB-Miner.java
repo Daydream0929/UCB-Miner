@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This is an implementation of the "HUP-MINER Algorithm" for High-Utility Itemsets Mining
+ * This is an implementation of the "UCB-MINER Algorithm" for High-Utility Itemsets Mining
  * as described in the journal paper : <br/><br/>
  * 
  *  Krishnamoorthy, S. (2014). Pruning Strategies for Mining High-Utility Itemsets.
@@ -145,7 +145,7 @@ public class AlgoHUPplusMiner {
 			}
 	    }
 		
-		//===== BEGIN HUP-Miner
+		//===== BEGIN UCB-MINEr
 		// save the desired number of partitions
 		this.p_count = p_count;
 		
@@ -156,7 +156,7 @@ public class AlgoHUPplusMiner {
 			this.p_size = transactionCount / this.p_count;
 			this.p_count = (int) Math.ceil(transactionCount / (double) p_size);
 		}
-		//===== END HUP-Miner
+		//===== END UCB-MINEr
 		
 		// CREATE A LIST TO STORE THE UTILITY LIST OF ITEMS WITH TWU  >= MIN_UTILITY.
 		List<UtilityListHUPlus> listOfUtilityLists = new ArrayList<UtilityListHUPlus>();
@@ -356,18 +356,18 @@ public class AlgoHUPplusMiner {
 					}
 					// =========================== END OF NEW OPTIMIZATION
 
-					//=== BEGIN HUP-Miner
+					//=== BEGIN UCB-MINEr
 					if(puPrune(X, Y, minUtility)) {
 						continue;
 					}
-					//=== END HUP-Miner
+					//=== END UCB-MINEr
 					
 					// we construct the extension pXY 
 					// and add it to the list of extensions of pX
 					UtilityListHUPlus pul = construct(pUL, X, Y, minUtility);
-					//=== BEGIN HUP-Miner
+					//=== BEGIN UCB-MINEr
 					if(pul != null) {
-					//=== END HUP-Miner
+					//=== END UCB-MINEr
 						exULs.add(pul);
 						joinCount++;
 					}else {
@@ -384,7 +384,7 @@ public class AlgoHUPplusMiner {
 		}
 	}
 	
-	//=== BEGIN HUP-Miner
+	//=== BEGIN UCB-MINEr
 	/** This method check if the combination pXY of two itemsets
 	 * pX and pY and extensions of pXY 
 	 * should be pruned according to the PU-Prune property.
@@ -406,7 +406,7 @@ public class AlgoHUPplusMiner {
 		// if the sum is less than minutil, we can prune pXY and its supersets
 		return sum < minUtil;
 	}
-	//=== END HUP-Miner
+	//=== END UCB-MINEr
 
 	/**
 	 * This method constructs the utility list of pXY
@@ -421,10 +421,10 @@ public class AlgoHUPplusMiner {
 		// create an empy utility list for pXY
 		UtilityListHUPlus pxyUL = new UtilityListHUPlus(py.item, p_size);
 		
-		// BEGIN HUP-Miner
+		// BEGIN UCB-MINEr
 		// Initialize the sum of total utility
 		long totalUtility = px.sumIutils + px.sumRutils;
-		// END HUP-Miner
+		// END UCB-MINEr
 
         // My first storage  jianzhi
         if (px.elements.get(px.elements.size() - 1).tid < py.elements.get(0).tid || 
@@ -495,7 +495,7 @@ public class AlgoHUPplusMiner {
 	 * Print statistics about the latest execution to System.out.
 	 */
 	public void printStats() {
-		System.out.println("=============  HUP-MINER ALGORITHM v0.96r18 - STATS =============");
+		System.out.println("=============  UCB-MINER ALGORITHM v0.96r18 - STATS =============");
 		System.out.println(" Transaction count: " + transactionCount +
 				   		" Partition count: " + p_count );
 		System.out.println(" Partition size: " + p_size);
