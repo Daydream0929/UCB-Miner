@@ -22,7 +22,7 @@ import java.util.Map;
  *  This algorithm is a variation of the HUI-Miner algorithm where the database is partitionned.
  *  It introduces and additional parameter, which is the number of partitions.
  *
- * @see UtilityListHUPlus
+ * @see UtilistUCBMiner
  * @see Element
  * @author Philippe Fournier-Viger
  */
@@ -75,7 +75,7 @@ public class AlgoHUPplusMiner {
 	/**
 	 * Default constructor
 	 */
-	public AlgoHUPplusMiner() {
+	public AlgoUCBMiner() {
 	}
 
 	/**
@@ -156,20 +156,20 @@ public class AlgoHUPplusMiner {
 			this.p_size = transactionCount / this.p_count;
 			this.p_count = (int) Math.ceil(transactionCount / (double) p_size);
 		}
-		//===== END UCB-MINEr
+		//===== END UCB-MINER
 		
 		// CREATE A LIST TO STORE THE UTILITY LIST OF ITEMS WITH TWU  >= MIN_UTILITY.
-		List<UtilityListHUPlus> listOfUtilityLists = new ArrayList<UtilityListHUPlus>();
+		List<UtilistUCBMiner> listOfUtilityLists = new ArrayList<UtilistUCBMiner>();
 		// CREATE A MAP TO STORE THE UTILITY LIST FOR EACH ITEM.
 		// Key : item    Value :  utility list associated to that item
-		Map<Integer, UtilityListHUPlus> mapItemToUtilityList = new HashMap<Integer, UtilityListHUPlus>();
+		Map<Integer, UtilistUCBMiner> mapItemToUtilityList = new HashMap<Integer, UtilistUCBMiner>();
 		
 		// For each item
 		for(Integer item: mapItemToTWU.keySet()){
 			// if the item is promising  (TWU >= minutility)
 			if(mapItemToTWU.get(item) >= minUtility){
 				// create an empty Utility List that we will fill later.
-				UtilityListHUPlus uList = new UtilityListHUPlus(item, this.p_count);
+				UtilistUCBMiner uList = new UtilistUCBMiner(item, this.p_count);
 				mapItemToUtilityList.put(item, uList);
 				// add the item to the list of high TWU items
 				listOfUtilityLists.add(uList); 
@@ -177,8 +177,8 @@ public class AlgoHUPplusMiner {
 			}
 		}
 		// SORT THE LIST OF HIGH TWU ITEMS IN ASCENDING ORDER
-		Collections.sort(listOfUtilityLists, new Comparator<UtilityListHUPlus>(){
-			public int compare(UtilityListHUPlus o1, UtilityListHUPlus o2) {
+		Collections.sort(listOfUtilityLists, new Comparator<UtilistUCBMiner>(){
+			public int compare(UtilistUCBMiner o1, UtilistUCBMiner o2) {
 				// compare the TWU of the items
 				return compareItems(o1.item, o2.item);
 			}
@@ -247,7 +247,7 @@ public class AlgoHUPplusMiner {
 					remainingUtility = remainingUtility - pair.utility;
 					
 					// get the utility list of this item
-					UtilityListHUPlus utilityListOfItem = mapItemToUtilityList.get(pair.item);
+					UtilistUCBMiner utilityListOfItem = mapItemToUtilityList.get(pair.item);
 					
 					// Add a new Element to the utility list of this item corresponding to this transaction
 					Element element = new Element(tid, pair.utility, remainingUtility);
@@ -294,7 +294,7 @@ public class AlgoHUPplusMiner {
 		MemoryLogger.getInstance().checkMemory();
 
 		// Mine the database recursively
-		hupMiner(itemsetBuffer, 0, null, listOfUtilityLists, minUtility);
+		UCBMiner(itemsetBuffer, 0, null, listOfUtilityLists, minUtility);
 		
 		// check the memory usage again and close the file.
 		MemoryLogger.getInstance().checkMemory();
@@ -320,13 +320,13 @@ public class AlgoHUPplusMiner {
 	 * @param prefixLength The current prefix length
 	 * @throws IOException
 	 */
-	private void hupMiner(int [] prefix, 
-			int prefixLength, UtilityListHUPlus pUL, List<UtilityListHUPlus> ULs, int minUtility)
+	private void UCBMiner(int [] prefix, 
+			int prefixLength, UtilistUCBMiner pUL, List<UtilistUCBMiner> ULs, int minUtility)
 			throws IOException {
 		
 		// For each extension X of prefix P
 		for(int i=0; i< ULs.size(); i++){
-			UtilityListHUPlus X = ULs.get(i);
+			UtilistUCBMiner X = ULs.get(i);
 
 			// If pX is a high utility itemset.
 			// we save the itemset:  pX 
@@ -340,11 +340,11 @@ public class AlgoHUPplusMiner {
 			// (this is the pruning condition)
 			if(X.sumIutils + X.sumRutils >= minUtility){
 				// This list will contain the utility lists of pX extensions.
-				List<UtilityListHUPlus> exULs = new ArrayList<UtilityListHUPlus>();
+				List<UtilistUCBMiner> exULs = new ArrayList<UtilistUCBMiner>();
 				// For each extension of p appearing
 				// after X according to the ascending order
 				for(int j=i+1; j < ULs.size(); j++){
-					UtilityListHUPlus Y = ULs.get(j);
+					UtilistUCBMiner Y = ULs.get(j);
 
 					// ======================== NEW OPTIMIZATION USED IN FHM
 					Map<Integer, Long> mapTWUF = mapFMAP.get(X.item);
@@ -364,7 +364,7 @@ public class AlgoHUPplusMiner {
 					
 					// we construct the extension pXY 
 					// and add it to the list of extensions of pX
-					UtilityListHUPlus pul = construct(pUL, X, Y, minUtility);
+					UtilistUCBMiner pul = construct(pUL, X, Y, minUtility);
 					//=== BEGIN UCB-MINEr
 					if(pul != null) {
 					//=== END UCB-MINEr
@@ -379,7 +379,7 @@ public class AlgoHUPplusMiner {
 				itemsetBuffer[prefixLength] = X.item;
 				
 				// We make a recursive call to discover all itemsets with the prefix pXY
-				hupMiner(itemsetBuffer, prefixLength+1, X, exULs, minUtility); 
+				UCBMiner(itemsetBuffer, prefixLength+1, X, exULs, minUtility); 
 			}
 		}
 	}
@@ -393,7 +393,7 @@ public class AlgoHUPplusMiner {
 	 * @param minUtil the minUtility threshold
 	 * @return  true if pXY and its extensionsshould be pruned
 	 */
-	private boolean puPrune(UtilityListHUPlus X, UtilityListHUPlus Y, int minUtil) {
+	private boolean puPrune(UtilistUCBMiner X, UtilistUCBMiner Y, int minUtil) {
 		long sum = 0;
 		// for each partition 
 		for(int i = 0; i < p_count; i++) {
@@ -416,10 +416,10 @@ public class AlgoHUPplusMiner {
 	 * @param minUtility : the minimum utility threshold
 	 * @return the utility list of pXY
 	 */
-	private UtilityListHUPlus construct(UtilityListHUPlus P, 
-			UtilityListHUPlus px, UtilityListHUPlus py, int minUtility) {
+	private UtilistUCBMiner construct(UtilistUCBMiner P, 
+			UtilistUCBMiner px, UtilistUCBMiner py, int minUtility) {
 		// create an empy utility list for pXY
-		UtilityListHUPlus pxyUL = new UtilityListHUPlus(py.item, p_size);
+		UtilistUCBMiner pxyUL = new UtilistUCBMiner(py.item, p_size);
 		
 		// BEGIN UCB-MINEr
 		// Initialize the sum of total utility

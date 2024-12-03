@@ -2,14 +2,14 @@ import java.util.HashMap;
 
 
 /**
- * This class represents a Partitioned Utility List as used by the HUP-Miner algorithm.
+ * This class represents a Partitioned Utility List as used by the UCB-Miner algorithm.
  *
- * @see AlgoHUPplusMiner
+ * @see AlgoUCB-Miner
  * @see UtilityList
  * @see Element
  * @author Philippe Fournier-Viger
  */
-class UtilityListHUPlus extends UtilityList {
+class UtilistUCBMiner extends UtilityList {
 	/** this variable stores the sum of SU+RU for each partition */
 	int[] partitionSURU;
 	HashMap<Integer, Integer> pos = new HashMap<Integer, Integer>();
@@ -19,7 +19,7 @@ class UtilityListHUPlus extends UtilityList {
 	 * @param item the item that is used for this utility list
 	 * @param p_count the number of partitions
 	 */
-	public UtilityListHUPlus(int item, int p_count){
+	public UtilistUCBMiner(int item, int p_count){
 		super(item);
 		this.partitionSURU = new int[p_count];
 	}
